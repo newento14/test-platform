@@ -59,4 +59,9 @@ export class QuestionsService {
 
     return question;
   }
+
+  async getQuestionsByTestId(testId: number) {
+    const questions = await this.prisma.question.findMany({where: {testId: testId}});
+    return questions;
+  }
 }

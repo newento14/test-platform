@@ -2,6 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {PrismaService} from "../prisma.service";
 import {CreateTestDto} from "./dto/createTest.dto";
 import {UpdateTestDto} from "./dto/updateTest.dto";
+import {QuestionsService} from "../questions/questions.service";
 
 @Injectable()
 export class TestsService {
@@ -36,10 +37,23 @@ export class TestsService {
     return tests;
   }
 
-  async getTestById(id: number) {
-    const test = await this.prisma.test.findFirst({where: {id: id}});
+  async getTestById(testId: number) {
+    const test = await this.prisma.test.findFirst({where: {id: testId}});
+    const questions = await this.prisma.question.findMany({where: {testId: testId}});
+
+    const questionsWithAnswers = await Promise.all(questions.map(async (q) => {
+      const answers = await this.prisma.answer.findMany({ where: { questionId: q.id } });
+      return {
+        ...q,
+        answers
+      }
+    }));
+
+    console.log(questionsWithAnswers);
+
     return {
       ...test,
+      question: questionsWithAnswers,
     };
   }
 

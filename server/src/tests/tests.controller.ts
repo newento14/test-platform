@@ -33,7 +33,6 @@ export class TestsController {
   @UseGuards(AuthGuard)
   @Get(':id')
   getTestById(@Param('id') id) {
-    // TODO: get all questions
     return this.testsService.getTestById(parseInt(id));
   }
 }
