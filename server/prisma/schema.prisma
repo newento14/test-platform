@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum QuestionTypes {
+  oneAnswer
+  twoOrMoreAnswers
+  inputAnswer
+}
+
+model Test {
+  id     Int     @id @default(autoincrement())
+  title  String  @db.VarChar(100)
+  user   User?    @relation(fields: [userId], references: [id])
+  userId Int?
+  questions     Question[]
+  completedTest CompletedTest[]
+}
+
+model Question {
+  id          Int           @id @default(autoincrement())
+  title       String        @db.VarChar(255)
+  photo       String?
+  type        QuestionTypes @default(oneAnswer)
+  test        Test          @relation(fields: [testId], references: [id])
+  testId      Int
+  answers     Answer[]
+}
+
+model Answer {
+  id          Int         @id @default(autoincrement())
+  value       String      @db.VarChar(100)
+  correct     Boolean
+  question    Question?    @relation(fields: [questionId], references: [id])
+  questionId  Int?
+  answers     UserAnswer[]
+}
+
+model CompletedTest {
+  id            Int     @id @default(autoincrement())
+  rightAnswers  Int
+  user          User?    @relation(fields: [userId], references: [id])
+  userId        Int?
+  test          Test?    @relation(fields: [testId], references: [id])
+  testId        Int?
+}
+
+model UserAnswer {
+  id          Int     @id @default(autoincrement())
+  value       String  @default("")
+  user        User    @relation(fields: [userId], references: [id])
+  userId      Int
+  answer      Answer?  @relation(fields: [answerId], references: [id])
+  answerId Int?
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  email    String   @unique @db.VarChar(100)
+  password String   @db.VarChar(256)
+  tests        Test[]
+  competedTest CompletedTest[]
+  answers UserAnswer[]
+}
+
+
+
